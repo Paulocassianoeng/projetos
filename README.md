@@ -9,8 +9,20 @@ Sistema de Agenda Inteligente com IA para otimização de horários e produtivid
 - ✅ Análise de padrões de produtividade
 - ✅ Integração com calendários externos
 - ✅ Notificações inteligentes
-- ✅ Dashboard analítico
+- ✅ Dashboard analítico com métricas dinâmicas:
+	- Total de Compromissos
+	- Taxa de Conclusão
+	- Tempo Médio dos compromissos
+	- Colaboradores únicos
 - ✅ Interface responsiva e moderna
+
+
+## 🆕 Novidades
+
+- As métricas do dashboard e analytics agora são calculadas dinamicamente a partir dos dados reais do sistema, incluindo:
+	- Taxa de conclusão baseada no status dos compromissos
+	- Tempo médio calculado automaticamente
+	- Contagem real de colaboradores (participantes únicos)
 
 ## 🛠️ Tecnologias
 
@@ -65,4 +77,4 @@ npm run dev
 
 ## 📄 Licença
 
-Este projeto está sob a licença MIT.
+Este projeto está sob a licença PACCASS.

@@ -3,10 +3,14 @@ import { ChevronLeft, ChevronRight, Plus } from 'lucide-react'
 import { useAppointmentStore } from '../store/appointmentStore'
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 
 export default function Calendar() {
   const [currentDate, setCurrentDate] = useState(new Date())
-  const { appointments, selectedDate, setSelectedDate } = useAppointmentStore()
+  const { appointments, selectedDate, setSelectedDate, addAppointment } = useAppointmentStore()
+  const [showForm, setShowForm] = useState(false)
 
   const monthStart = startOfMonth(currentDate)
   const monthEnd = endOfMonth(currentDate)
@@ -28,11 +32,40 @@ export default function Calendar() {
 
   const selectedDayAppointments = getAppointmentsForDay(selectedDate)
 
+  // Formulário de novo compromisso (reutilizando lógica de Appointments)
+  const schema = z.object({
+    title: z.string().min(1, 'Título obrigatório'),
+    description: z.string().optional(),
+    startTime: z.string().min(1, 'Data/hora início obrigatória'),
+    endTime: z.string().min(1, 'Data/hora fim obrigatória'),
+    location: z.string().optional(),
+    type: z.enum(['MEETING', 'TASK', 'REMINDER', 'PERSONAL']).default('MEETING'),
+    priority: z.enum(['LOW', 'MEDIUM', 'HIGH']).default('MEDIUM'),
+    status: z.enum(['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']).default('SCHEDULED'),
+  })
+  type FormFields = z.infer<typeof schema>;
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormFields>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      type: 'MEETING',
+      priority: 'MEDIUM',
+      status: 'SCHEDULED',
+      startTime: selectedDate ? new Date(selectedDate).toISOString().slice(0, 16) : '',
+      endTime: selectedDate ? new Date(selectedDate).toISOString().slice(0, 16) : '',
+    }
+  })
+
+  const onSubmit = async (data: any) => {
+    await addAppointment(data)
+    setShowForm(false)
+    reset()
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Calendário</h1>
-        <button className="btn-primary flex items-center space-x-2">
+        <button className="btn-primary flex items-center space-x-2" onClick={() => setShowForm(true)}>
           <Plus className="w-4 h-4" />
           <span>Novo Compromisso</span>
         </button>
@@ -103,8 +136,8 @@ export default function Calendar() {
                           <div
                             key={appointment.id}
                             className={`text-xs p-1 rounded truncate ${
-                              appointment.priority === 'high' ? 'bg-red-100 text-red-800' :
-                              appointment.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                              appointment.priority === 'HIGH' ? 'bg-red-100 text-red-800' :
+                              appointment.priority === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800' :
                               'bg-green-100 text-green-800'
                             }`}
                           >
@@ -152,12 +185,12 @@ export default function Calendar() {
                         )}
                       </div>
                       <span className={`px-2 py-1 text-xs rounded-full ${
-                        appointment.priority === 'high' ? 'bg-red-100 text-red-800' :
-                        appointment.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                        appointment.priority === 'HIGH' ? 'bg-red-100 text-red-800' :
+                        appointment.priority === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800' :
                         'bg-green-100 text-green-800'
                       }`}>
-                        {appointment.priority === 'high' ? 'Alta' :
-                         appointment.priority === 'medium' ? 'Média' : 'Baixa'}
+                        {appointment.priority === 'HIGH' ? 'Alta' :
+                         appointment.priority === 'MEDIUM' ? 'Média' : 'Baixa'}
                       </span>
                     </div>
                   </div>
@@ -169,9 +202,67 @@ export default function Calendar() {
                   <Plus className="w-8 h-8 text-gray-400" />
                 </div>
                 <p className="text-gray-500 mb-4">Nenhum compromisso para este dia</p>
-                <button className="btn-primary text-sm">
+                <button className="btn-primary text-sm" onClick={() => setShowForm(true)}>
                   Adicionar Compromisso
                 </button>
+      {/* Formulário de novo compromisso */}
+      {showForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 w-full max-w-md shadow-lg relative">
+            <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-600" onClick={() => setShowForm(false)}>&times;</button>
+            <h2 className="text-xl font-bold mb-4">Novo Compromisso</h2>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium">Título</label>
+                <input className="input" {...register('title')} />
+                {errors.title && <span className="text-red-500 text-xs">{errors.title.message as string}</span>}
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Descrição</label>
+                <textarea className="input" {...register('description')} />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-sm font-medium">Início</label>
+                  <input type="datetime-local" className="input" {...register('startTime')} />
+                  {errors.startTime && <span className="text-red-500 text-xs">{errors.startTime.message as string}</span>}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium">Fim</label>
+                  <input type="datetime-local" className="input" {...register('endTime')} />
+                  {errors.endTime && <span className="text-red-500 text-xs">{errors.endTime.message as string}</span>}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Local</label>
+                <input className="input" {...register('location')} />
+              </div>
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <label className="block text-sm font-medium">Tipo</label>
+                  <select className="input" {...register('type')}>
+                    <option value="MEETING">Reunião</option>
+                    <option value="TASK">Tarefa</option>
+                    <option value="REMINDER">Lembrete</option>
+                    <option value="PERSONAL">Pessoal</option>
+                  </select>
+                </div>
+                <div className="flex-1">
+                  <label className="block text-sm font-medium">Prioridade</label>
+                  <select className="input" {...register('priority')}>
+                    <option value="HIGH">Alta</option>
+                    <option value="MEDIUM">Média</option>
+                    <option value="LOW">Baixa</option>
+                  </select>
+                </div>
+              </div>
+              <button type="submit" className="btn-primary w-full">
+                Salvar
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
               </div>
             )}
           </div>

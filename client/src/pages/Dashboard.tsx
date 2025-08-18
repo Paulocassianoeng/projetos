@@ -20,38 +20,51 @@ const Dashboard = () => {
     return aptDate > today;
   }).slice(0, 5);
 
+  // Estatísticas dinâmicas
+  const totalAppointments = appointments.length;
+  const completedAppointments = appointments.filter(a => a.status === 'COMPLETED').length;
+  const completionRate = totalAppointments > 0 ? (completedAppointments / totalAppointments * 100).toFixed(1) : '0';
+  const avgDuration = totalAppointments > 0
+    ? (
+        appointments.reduce((acc, a) => {
+          const start = new Date(a.startTime).getTime();
+          const end = new Date(a.endTime).getTime();
+          return acc + Math.max(0, end - start);
+        }, 0) / totalAppointments / (1000 * 60 * 60)
+      ).toFixed(1)
+    : '0.0';
+  const collaborators = Array.from(new Set(
+    appointments.flatMap(a => Array.isArray(a.participants) ? a.participants : [])
+  ));
+
   const stats = [
     {
-      name: 'Compromissos Hoje',
-      value: todayAppointments.length,
+      name: 'Total de Compromissos',
+      value: totalAppointments,
       icon: Calendar,
-      change: '+12%',
-      changeType: 'positive',
+      change: '',
+      changeType: '',
     },
     {
-      name: 'Próxima Semana',
-      value: appointments.filter(apt => {
-        const aptDate = new Date(apt.startTime);
-        const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
-        return aptDate >= today && aptDate <= nextWeek;
-      }).length,
-      icon: Clock,
-      change: '+5%',
-      changeType: 'positive',
-    },
-    {
-      name: 'Participantes',
-      value: appointments.reduce((acc, apt) => acc + (apt.participants?.length || 0), 0),
-      icon: Users,
-      change: '+8%',
-      changeType: 'positive',
-    },
-    {
-      name: 'Produtividade',
-      value: '94%',
+      name: 'Taxa de Conclusão',
+      value: `${completionRate}%`,
       icon: TrendingUp,
-      change: '+3%',
-      changeType: 'positive',
+      change: '',
+      changeType: '',
+    },
+    {
+      name: 'Tempo Médio',
+      value: `${avgDuration}h`,
+      icon: Clock,
+      change: '',
+      changeType: '',
+    },
+    {
+      name: 'Colaboradores',
+      value: collaborators.length,
+      icon: Users,
+      change: '',
+      changeType: '',
     },
   ];
 

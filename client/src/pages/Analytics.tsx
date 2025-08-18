@@ -6,8 +6,24 @@ export default function Analytics() {
 
   // Dados para análises
   const totalAppointments = appointments.length
-  const completedAppointments = appointments.filter(a => a.status === 'completed').length
+  const completedAppointments = appointments.filter(a => a.status === 'COMPLETED').length
   const completionRate = totalAppointments > 0 ? (completedAppointments / totalAppointments * 100).toFixed(1) : '0'
+
+  // Tempo médio de duração dos compromissos (em horas)
+  const avgDuration = totalAppointments > 0
+    ? (
+        appointments.reduce((acc, a) => {
+          const start = new Date(a.startTime).getTime();
+          const end = new Date(a.endTime).getTime();
+          return acc + Math.max(0, end - start);
+        }, 0) / totalAppointments / (1000 * 60 * 60)
+      ).toFixed(1)
+    : '0.0';
+
+  // Número de colaboradores únicos
+  const collaborators = Array.from(new Set(
+    appointments.flatMap(a => Array.isArray(a.participants) ? a.participants : [])
+  ));
   
   const thisWeekAppointments = appointments.filter(apt => {
     const today = new Date()
@@ -71,13 +87,14 @@ export default function Analytics() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Tempo Médio</p>
-              <p className="text-2xl font-bold text-gray-900">1.2h</p>
+              <p className="text-2xl font-bold text-gray-900">{avgDuration}h</p>
             </div>
             <div className="w-12 h-12 bg-purple-50 rounded-lg flex items-center justify-center">
               <Clock className="w-6 h-6 text-purple-600" />
             </div>
           </div>
           <div className="mt-4 flex items-center">
+            {/* Valor fictício, ajuste se quiser comparar com mês anterior */}
             <span className="text-sm font-medium text-red-600">-0.2h</span>
             <span className="text-sm text-gray-500 ml-2">vs. mês anterior</span>
           </div>
@@ -87,13 +104,14 @@ export default function Analytics() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Colaboradores</p>
-              <p className="text-2xl font-bold text-gray-900">12</p>
+              <p className="text-2xl font-bold text-gray-900">{collaborators.length}</p>
             </div>
             <div className="w-12 h-12 bg-orange-50 rounded-lg flex items-center justify-center">
               <Users className="w-6 h-6 text-orange-600" />
             </div>
           </div>
           <div className="mt-4 flex items-center">
+            {/* Valor fictício, ajuste se quiser comparar com mês anterior */}
             <span className="text-sm font-medium text-green-600">+3</span>
             <span className="text-sm text-gray-500 ml-2">este mês</span>
           </div>
@@ -140,10 +158,10 @@ export default function Analytics() {
           
           <div className="space-y-4">
             {[
-              { type: 'Reuniões', count: appointments.filter(a => a.type === 'meeting').length, color: 'bg-blue-500' },
-              { type: 'Tarefas', count: appointments.filter(a => a.type === 'task').length, color: 'bg-purple-500' },
-              { type: 'Lembretes', count: appointments.filter(a => a.type === 'reminder').length, color: 'bg-orange-500' },
-              { type: 'Pessoal', count: appointments.filter(a => a.type === 'personal').length, color: 'bg-green-500' }
+              { type: 'Reuniões', count: appointments.filter(a => a.type === 'MEETING').length, color: 'bg-blue-500' },
+              { type: 'Tarefas', count: appointments.filter(a => a.type === 'TASK').length, color: 'bg-purple-500' },
+              { type: 'Lembretes', count: appointments.filter(a => a.type === 'REMINDER').length, color: 'bg-orange-500' },
+              { type: 'Pessoal', count: appointments.filter(a => a.type === 'PERSONAL').length, color: 'bg-green-500' }
             ].map((item) => {
               const percentage = totalAppointments > 0 ? (item.count / totalAppointments * 100).toFixed(1) : '0'
               return (
