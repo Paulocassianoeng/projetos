@@ -21,7 +21,7 @@
     "nodejs"
   ],
   "author": "Paulo Cassiano",
-  "license": "MIT",
+  "license": "PACCASS",
   "devDependencies": {
     "concurrently": "^8.2.2"
   },
