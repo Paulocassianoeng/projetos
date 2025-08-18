@@ -1,0 +1,96 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  appointments Appointment[]
+  settings     UserSettings?
+
+  @@map("users")
+}
+
+model UserSettings {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Notification preferences
+  emailNotifications Boolean @default(true)
+  pushNotifications  Boolean @default(true)
+  reminders          Boolean @default(true)
+
+  // Working hours
+  workingHoursStart String @default("09:00")
+  workingHoursEnd   String @default("18:00")
+  timezone          String @default("America/Sao_Paulo")
+
+  // Appearance
+  theme    String @default("light")
+  language String @default("pt-BR")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("user_settings")
+}
+
+model Appointment {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  startTime   DateTime
+  endTime     DateTime
+  location    String?
+  
+  // Enums as strings for SQLite
+  type     String @default("MEETING")
+  priority String @default("MEDIUM")
+  status   String @default("SCHEDULED")
+
+  // Flags
+  isRecurring Boolean @default(false)
+  aiSuggested Boolean @default(false)
+
+  // Relations
+  userId       String
+  user         User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  participants AppointmentParticipant[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("appointments")
+}
+
+model AppointmentParticipant {
+  id            String @id @default(cuid())
+  appointmentId String
+  appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  
+  email    String
+  name     String
+  status   String @default("PENDING")
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([appointmentId, email])
+  @@map("appointment_participants")
+}
