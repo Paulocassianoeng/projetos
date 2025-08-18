@@ -17,7 +17,7 @@ export default function Sidebar() {
     <div className="w-64 bg-white shadow-sm border-r border-gray-200">
       <div className="flex items-center justify-center h-16 px-4 border-b border-gray-200">
         <h1 className="text-xl font-bold text-primary-600">
-          PACASS AGENDA
+          PACCASS AGENDA
         </h1>
       </div>
       

@@ -35,7 +35,7 @@ export default function Login() {
         <div className="flex flex-col justify-center space-y-8">
           <div>
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Agenda Inteligência
+              Agenda Inteligente
             </h1>
             <p className="text-xl text-gray-600 mb-8">
               Transforme sua produtividade com o poder da Inteligência Artificial
