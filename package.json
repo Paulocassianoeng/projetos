@@ -1,0 +1,31 @@
+{
+  "name": "agenda-inteligencia",
+  "version": "1.0.0",
+  "description": "Sistema de Agenda Inteligente com IA",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
+    "dev:client": "cd client && npm run dev",
+    "dev:server": "cd server && npm run dev",
+    "build": "npm run build:client && npm run build:server",
+    "build:client": "cd client && npm run build",
+    "build:server": "cd server && npm run build",
+    "start": "cd server && npm start",
+    "install:all": "npm install && cd client && npm install && cd ../server && npm install"
+  },
+  "keywords": [
+    "agenda",
+    "inteligencia-artificial",
+    "react",
+    "typescript",
+    "nodejs"
+  ],
+  "author": "Paulo Cassiano",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "multer": "^2.0.2"
+  }
+}
