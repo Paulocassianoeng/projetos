@@ -23,7 +23,8 @@
   "author": "Paulo Cassiano",
   "license": "PACCASS",
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "typescript": "^5.0.2"
   },
   "dependencies": {
     "multer": "^2.0.2"
