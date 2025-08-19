@@ -6,14 +6,44 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 
 export default function Appointments() {
+
   const { appointments, fetchAppointments, addAppointment, updateAppointment, deleteAppointment, loading, error } = useAppointmentStore()
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [showForm, setShowForm] = useState(false)
+  const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(10)
 
   useEffect(() => {
-    fetchAppointments()
-  }, [])
+    fetchAppointments(page, limit)
+  }, [page, limit])
+      {/* Paginação */}
+      <div className="flex justify-between items-center mt-4">
+        <button
+          className="btn-secondary"
+          onClick={() => setPage((p) => Math.max(1, p - 1))}
+          disabled={page === 1}
+        >
+          Página anterior
+        </button>
+        <span>Página {page}</span>
+        <button
+          className="btn-secondary"
+          onClick={() => setPage((p) => p + 1)}
+          disabled={appointments.length < limit}
+        >
+          Próxima página
+        </button>
+        <select
+          className="ml-4 border rounded px-2 py-1"
+          value={limit}
+          onChange={e => { setLimit(Number(e.target.value)); setPage(1); }}
+        >
+          <option value={5}>5</option>
+          <option value={10}>10</option>
+          <option value={20}>20</option>
+        </select>
+      </div>
 
   const filteredAppointments = appointments.filter(appointment => {
     const matchesSearch = appointment.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
