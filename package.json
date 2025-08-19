@@ -23,8 +23,11 @@
   "author": "Paulo Cassiano",
   "license": "PACCASS",
   "devDependencies": {
+    "@eslint/js": "^9.33.0",
     "concurrently": "^8.2.2",
-    "typescript": "^5.0.2"
+    "eslint": "^9.33.0",
+    "typescript": "^5.0.2",
+    "typescript-eslint": "^8.40.0"
   },
   "dependencies": {
     "multer": "^2.0.2"
