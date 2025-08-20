@@ -11,6 +11,7 @@ export default function Appointments() {
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [showForm, setShowForm] = useState(false)
+  const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null)
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(10)
 
@@ -68,7 +69,7 @@ export default function Appointments() {
     status: z.enum(['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']).default('SCHEDULED'),
   })
   type FormFields = z.infer<typeof schema>;
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormFields>({
+  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<FormFields>({
     resolver: zodResolver(schema),
     defaultValues: {
       type: 'MEETING',
@@ -78,8 +79,13 @@ export default function Appointments() {
   })
 
   const onSubmit = async (data: any) => {
-    await addAppointment(data)
+    if (editingAppointment) {
+      await updateAppointment(editingAppointment.id, data)
+    } else {
+      await addAppointment(data)
+    }
     setShowForm(false)
+    setEditingAppointment(null)
     reset()
   }
 
@@ -133,8 +139,8 @@ export default function Appointments() {
       {showForm && (
         <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-8 w-full max-w-md shadow-lg relative">
-            <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-600" onClick={() => setShowForm(false)}>&times;</button>
-            <h2 className="text-xl font-bold mb-4">Novo Compromisso</h2>
+            <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-600" onClick={() => { setShowForm(false); setEditingAppointment(null); }}>&times;</button>
+            <h2 className="text-xl font-bold mb-4">{editingAppointment ? 'Editar Compromisso' : 'Novo Compromisso'}</h2>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium">Título</label>
@@ -271,6 +277,24 @@ export default function Appointments() {
                     <option value="COMPLETED">Concluído</option>
                     <option value="CANCELLED">Cancelado</option>
                   </select>
+                  <button
+                    onClick={() => {
+                      setEditingAppointment(appointment);
+                      setShowForm(true);
+                      // Preencher o formulário com os dados do compromisso
+                      setValue('title', appointment.title);
+                      setValue('description', appointment.description || '');
+                      setValue('startTime', appointment.startTime.slice(0, 16));
+                      setValue('endTime', appointment.endTime.slice(0, 16));
+                      setValue('location', appointment.location || '');
+                      setValue('type', appointment.type);
+                      setValue('priority', appointment.priority);
+                      setValue('status', appointment.status);
+                    }}
+                    className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                  >
+                    Editar
+                  </button>
                   <button
                     onClick={() => deleteAppointment(appointment.id)}
                     className="text-red-600 hover:text-red-800 text-sm font-medium"
