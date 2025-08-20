@@ -23,7 +23,7 @@ interface AppointmentState {
   error: string | null
 
   setAppointments: (appointments: Appointment[]) => void
-  fetchAppointments: () => Promise<void>
+  fetchAppointments: (page?: number, limit?: number) => Promise<void>
   addAppointment: (appointment: Omit<Appointment, 'id'>) => Promise<void>
   updateAppointment: (id: string, updates: Partial<Appointment>) => Promise<void>
   deleteAppointment: (id: string) => Promise<void>
@@ -41,10 +41,10 @@ export const useAppointmentStore = create<AppointmentState>((set, get) => ({
 
   setAppointments: (appointments) => set({ appointments }),
 
-  fetchAppointments: async () => {
+  fetchAppointments: async (page = 1, limit = 10) => {
     set({ loading: true })
     try {
-      const res = await api.get('/appointments?limit=100')
+      const res = await api.get(`/appointments?page=${page}&limit=${limit}`)
       set({ appointments: res.data.data, loading: false })
     } catch (err: any) {
       set({ error: err?.response?.data?.message || 'Erro ao buscar compromissos', loading: false })

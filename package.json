@@ -7,7 +7,7 @@
     "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
     "dev:client": "cd client && npm run dev",
     "dev:server": "cd server && npm run dev",
-    "build": "npm run build:client && npm run build:server",
+  "build": "npm run build:client && npm run build:server",
   "build:client": "cd client && npm install && npm run build",
   "build:server": "cd server && npm install && npm run build",
     "start": "cd server && npm start",
@@ -23,10 +23,9 @@
   "author": "Paulo Cassiano",
   "license": "PACCASS",
   "devDependencies": {
+    "@eslint/js": "^9.33.0",
     "concurrently": "^8.2.2",
-    "typescript": "^5.0.2"
+    "eslint": "^9.33.0",
+    "typescript": "^5.0.2",
+    "typescript-eslint": "^8.40.0"
   },
-  "dependencies": {
-    "multer": "^2.0.2"
-  }
-}
